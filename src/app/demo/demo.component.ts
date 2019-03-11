@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NzFormatEmitEvent, NzTreeNodeOptions, NzTreeComponent } from 'ng-zorro-antd';
 import { TreeNode } from './tree-node';
+import { cloneDeep } from 'lodash';
 @Component({
   selector: 'app-demo',
   templateUrl: './demo.component.html',
@@ -51,14 +52,12 @@ export class DemoComponent implements OnInit {
     console.log(e);
   }
   contentMenu(e: NzFormatEmitEvent) {
-    console.log(e.node);
-    console.log('鼠标右键触发,新增一级');
-    this.treeNodes.addNode(e.node, {
-      title: 'test',
-      key: '5461'
-    }, (newNode: []) => {
-      this.nodes = newNode;
-      console.log(this.nodes);
-    });
+    // console.log(e.event.target);
+    this.treeNodes.getTargetNode(e.event.srcElement);
+    // 类型 节点node 文件 leaf string类型
+    // this.treeNodes.addNode(e.node, 'node', (newNode: []) => {
+    //   const obj = cloneDeep(newNode);
+    //   this.nodes = [obj];
+    // });
   }
 }
