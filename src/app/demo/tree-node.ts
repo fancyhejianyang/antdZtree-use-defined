@@ -1,9 +1,10 @@
 import { NzTreeNodeOptions, NzTreeNode } from 'ng-zorro-antd';
-import { Renderer2 } from '@angular/core';
+import { Renderer2, ElementRef } from '@angular/core';
 export class TreeNode {
   nodes: NzTreeNodeOptions[];
   node: NzTreeNodeOptions;
   render: Renderer2;
+  ref: ElementRef;
   // 添加的节点是否重复
   isReduplicated: boolean;
   constructor(nodes) {
@@ -43,10 +44,8 @@ export class TreeNode {
   getTargetNode(target: Element) {
     console.log(target);
     // this.editNode(target);
-    console.log(target.parentElement);
-    const span = new HTMLSpanElement();
-    span.innerHTML = '编辑';
-    target.parentElement.appendChild(span);
+    console.log(this.render);
+    // target.parentElement.append(this.render.createElement('sp', 'span'));
   }
   private getRootNode(node: NzTreeNode) {
     if (node.parentNode === null) {
