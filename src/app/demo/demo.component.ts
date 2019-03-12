@@ -1,5 +1,12 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { NzFormatEmitEvent, NzTreeNodeOptions, NzTreeComponent } from 'ng-zorro-antd';
+import { Component, OnInit, ViewChild, Renderer2, TemplateRef } from '@angular/core';
+import {
+  NzFormatEmitEvent,
+  NzTreeNodeOptions,
+  NzTreeNode,
+  NzTreeComponent,
+  NzDropdownService,
+  NzDropdownContextComponent
+} from 'ng-zorro-antd';
 import { TreeNode } from './tree-node';
 import { cloneDeep } from 'lodash';
 @Component({
@@ -33,13 +40,23 @@ export class DemoComponent implements OnInit {
       }
     ]
   }];
+  private dropdown: NzDropdownContextComponent;
   treeNodes: TreeNode;
-  constructor() { }
+  targetNode: NzTreeNode;
+  targetElement: EventTarget;
+  types = ['', 'node', 'leaf'];
+  constructor(
+    private render2: Renderer2,
+    private dropdownService: NzDropdownService
+  ) { }
 
   ngOnInit() {
-    this.treeNodes = new TreeNode(this.nodes);
+    this.treeNodes = new TreeNode(this.nodes, this.render2);
   }
   nzClick(e: NzFormatEmitEvent) {
+    e.event.preventDefault();
+    // this.treeNodes.removePane();
+    this.dropdown.close();
     console.log(e);
   }
   nzCheck(e: NzFormatEmitEvent) {
@@ -51,13 +68,28 @@ export class DemoComponent implements OnInit {
   dbClick(e: NzFormatEmitEvent) {
     console.log(e);
   }
-  contentMenu(e: NzFormatEmitEvent) {
-    // console.log(e.event.target);
-    this.treeNodes.getTargetNode(e.event.srcElement);
-    // 类型 节点node 文件 leaf string类型
-    // this.treeNodes.addNode(e.node, 'node', (newNode: []) => {
-    //   const obj = cloneDeep(newNode);
-    //   this.nodes = [obj];
+  contentMenu(e: NzFormatEmitEvent, template: TemplateRef<void>) {
+    this.targetNode = e.node;
+    console.log(e.event);
+    this.targetElement = e.event.target;
+    this.dropdown = this.dropdownService.create(e.event, template);
+    // this.treeNodes.addEventsOnTargetelement(this.targetElement);
+    // this.treeNodes.createOptionPane(e.event.srcElement, e.node, (newNode) => {
+    //   this.nodes = [cloneDeep(newNode)];
     // });
+  }
+  optionHandle(e: any) {
+    e.preventDefault();
+    const id = e.target.dataset.id;
+    if (id === '0') {
+      console.log('here is :', this.targetElement);
+      this.treeNodes.editNode(this.targetElement, this.targetNode, (newNodes) => {
+        this.nodes = [...cloneDeep(newNodes)];
+      });
+    } else {
+      this.treeNodes.addNode(this.targetNode, this.types[Number(id)], (newNodes) => {
+        this.nodes = [cloneDeep(newNodes)];
+      });
+    }
   }
 }

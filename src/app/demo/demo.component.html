@@ -1,7 +1,12 @@
 <h1>树形控件展示</h1>
-<nz-tree #treeCom [nzData]="nodes" nzCheckable 
-(nzClick)="nzClick($event)"
-(nzCheckBoxChange)="nzCheck($event)"
-(nzDblClick)="dbClick($event)"
-(nzContextMenu)="contentMenu($event)">
+<nz-tree #treeCom [nzData]="nodes" nzCheckable (nzClick)="nzClick($event)" (nzCheckBoxChange)="nzCheck($event)"
+  (nzDblClick)="dbClick($event)" (nzContextMenu)="contentMenu($event,template)">
+  <ng-template #template nzPlacement="'topRight'">
+    <span class="option-btn-pane">
+      <button (click)="optionHandle($event)" data-id="0">编辑</button>
+      <button data-id="1" (click)="optionHandle($event)">add node</button>
+      <button data-id="2" (click)="optionHandle($event)">add leaf</button>
+    </span>
+  </ng-template>
+
 </nz-tree>

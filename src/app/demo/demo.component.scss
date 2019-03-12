@@ -1,0 +1,21 @@
+.ant-tree-title{
+  white-space:nowrap;
+}
+.option-btn-pane {
+  // display: inline-block;
+  margin-left: 30px;
+  // position: relative;
+  z-index: 20;
+
+  button {
+    color: #fff;
+    background-color: #1890ff;
+    border-color: #fff;
+    border-width: 1px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    outline: none;
+    margin: 0px;
+    -webkit-appearance: none;
+  }
+}
