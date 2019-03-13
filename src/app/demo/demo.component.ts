@@ -5,7 +5,8 @@ import {
   NzTreeNode,
   NzTreeComponent,
   NzDropdownService,
-  NzDropdownContextComponent
+  NzDropdownContextComponent,
+  NzMessageService
 } from 'ng-zorro-antd';
 import { TreeNode } from './tree-node';
 import { cloneDeep } from 'lodash';
@@ -47,16 +48,19 @@ export class DemoComponent implements OnInit {
   types = ['', 'node', 'leaf'];
   constructor(
     private render2: Renderer2,
+    private message: NzMessageService,
     private dropdownService: NzDropdownService
   ) { }
 
   ngOnInit() {
-    this.treeNodes = new TreeNode(this.nodes, this.render2);
+    this.treeNodes = new TreeNode(this.nodes, this.message);
   }
   nzClick(e: NzFormatEmitEvent) {
-    e.event.preventDefault();
     // this.treeNodes.removePane();
-    this.dropdown.close();
+    if (this.dropdown) {
+      this.dropdown.close();
+    }
+    e.event.preventDefault();
     console.log(e);
   }
   nzCheck(e: NzFormatEmitEvent) {
@@ -70,26 +74,19 @@ export class DemoComponent implements OnInit {
   }
   contentMenu(e: NzFormatEmitEvent, template: TemplateRef<void>) {
     this.targetNode = e.node;
-    console.log(e.event);
     this.targetElement = e.event.target;
     this.dropdown = this.dropdownService.create(e.event, template);
-    // this.treeNodes.addEventsOnTargetelement(this.targetElement);
-    // this.treeNodes.createOptionPane(e.event.srcElement, e.node, (newNode) => {
-    //   this.nodes = [cloneDeep(newNode)];
-    // });
   }
   optionHandle(e: any) {
     e.preventDefault();
     const id = e.target.dataset.id;
     if (id === '0') {
-      console.log('here is :', this.targetElement);
-      this.treeNodes.editNode(this.targetElement, this.targetNode, (newNodes) => {
-        this.nodes = [...cloneDeep(newNodes)];
-      });
+      this.treeNodes.editNode(this.targetElement, this.targetNode);
     } else {
       this.treeNodes.addNode(this.targetNode, this.types[Number(id)], (newNodes) => {
         this.nodes = [cloneDeep(newNodes)];
       });
     }
+    this.dropdown.close();
   }
 }

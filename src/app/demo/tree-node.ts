@@ -1,166 +1,110 @@
-import { NzTreeNodeOptions, NzTreeNode } from 'ng-zorro-antd';
+import { NzTreeNodeOptions, NzTreeNode, NzMessageService } from 'ng-zorro-antd';
 import { Renderer2, ElementRef } from '@angular/core';
 export class TreeNode {
   nodes: NzTreeNodeOptions[];
   node: NzTreeNodeOptions;
-  render: Renderer2;
+  regStr: RegExp = /[!@#$%^&*()_+|\-\/<>?:"{}，。、；‘【】\]\[]/gi;
   pane: Element;
   types = ['', 'node', 'leaf'];
-  ref = new ElementRef('span');
+  // ref = new ElementRef('span');
+  removePane: () => void;
+  existNodeTitleIndex: number;
+  message: NzMessageService;
   // 添加的节点是否重复
   isReduplicated: boolean;
-  constructor(nodes, render2) {
+  constructor(nodes, message) {
     this.nodes = nodes;
-    this.render = render2;
+    this.message = message;
   }
   addNode(pNode: NzTreeNode, type, callback: any) {
-    // 所有操作均在非leaf 节点
-    console.log(type);
+    // 若所有操作均在非leaf 节点则：
+    // if (pNode.origin.isLeaf) {
+    //   return;
+    // }
+    // 设置添加默认模板
+    this.setNode(type, pNode);
+    // leaf 节点需要转移到上层node节点
     if (pNode.origin.isLeaf) {
-      return;
+      pNode.parentNode.origin.children = [...pNode.parentNode.origin.children, this.node];
+    } else {
+      pNode.origin.children = [...pNode.origin.children, this.node];
     }
-    // 设置默认添加模板
-    this.setNode(type);
-    this.checkNodeKey(pNode, this.node);
-    pNode.origin.children = [...pNode.origin.children, this.node];
     this.getRootNode(pNode);
     callback(this.nodes);
   }
-  showOptionDisplay() {
-    // this.render.createElement('<span></span>');
-  }
-  editNode(element: any, pNode: NzTreeNode, callback: any) {
+  editNode(element: any, pNode: NzTreeNode) {
     // 设置可编辑属性
-    console.log(pNode);
-    console.log(element.getAttribute.contentEditable);
-    // if (element.getAttribute.contentEditable) {
-    //   element.focus();
-    // }
+    // this.removePane = callback;
     element.setAttribute('contentEditable', 'true');
-    console.log('contendEditable was changed!');
     element.focus();
-    element.addEventListener('keyup', (e) => {
-      if (e.code === 'Enter') {
-        e.target.innerText = e.target.innerText.replace('<br/>', '');
+    // getSelection().getRangeAt(0);
+    const pastText = element.innerText;
+    element.addEventListener('keydown', (e) => {
+      if (e.keyCode === 13) {
+        e.preventDefault();
         element.blur();
       }
     });
     element.addEventListener('blur', (e) => {
-      console.log('remove contendEditable');
-      e.target.innerText = e.target.innerText.replace('<br>', '');
+      if (e.target.innerText.trim() === '' || this.regStr.test(e.target.innerText.trim())) {
+        this.message.create('warning', '修改值不可包含特殊字符或者为空值！');
+        e.target.innerText = pastText;
+        return;
+      }
+      e.target.innerText = e.target.innerText.trim().replace('<br/>', '');
       e.target.removeAttribute('contentEditable');
-      console.log('element attribute:', e.target);
       // 获取value 并更新data
       pNode.origin.title = e.target.innerText;
-      callback(this.nodes);
+      // callback(this.nodes);
     });
   }
-  // addEventsOnTargetelement(element: Element) {
-  //   console.log(element);
-  // }
-  // removePane() {
-  //   if (this.pane) {
-  //     this.render.removeChild(this.pane.parentElement, this.pane);
-  //   }
-  // }
-  // createOptionPane(target: Element, pNode: NzTreeNode, callback: any) {
-  //   // 所有操作均在非leaf 节点 ; 目标元素为span
-  //   if (pNode.origin.isLeaf) {
-  //     this.removePane();
-  //     return;
-  //   }
-  //   if (target.nodeName !== 'SPAN' && !target.classList.contains('ant-tree-title')) {
-  //     this.removePane();
-  //     return;
-  //   }
-  //   // 移除旧的Pane
-  //   this.removePane();
-  //   this.pane = this.render.createElement('span');
-  //   this.pane.classList.add('option-btn-pane');
-  //   const [btn1, btn2, btn3] = [
-  //     this.render.createElement('button'),
-  //     this.render.createElement('button'),
-  //     this.render.createElement('button')
-  //   ];
-  //   const [text1, text2, text3] = [
-  //     this.render.createText('编辑'),
-  //     this.render.createText('add node'),
-  //     this.render.createText('add leaf')
-  //   ];
-  //   [btn1, btn2, btn3].forEach((item, index) => {
-  //     // 添加阻止冒泡的机制
-  //     item.addEventListener('click', (e: MouseEvent) => {
-  //       console.log('btn click');
-  //       if (e.stopPropagation) {
-  //         e.stopPropagation();
-  //       } else {
-  //         e.cancelBubble = true;
-  //       }
-  //       // 添加
-  //       if (index === 0) {
-  //         this.editNode(target, pNode, callback);
-  //       } else {
-  //         this.addNode(pNode, this.types[index], callback);
-  //         callback(this.nodes);
-  //       }
-  //     });
-  //   });
-  //   this.render.appendChild(btn1, text1);
-  //   this.render.appendChild(btn2, text2);
-  //   this.render.appendChild(btn3, text3);
-
-  //   this.render.appendChild(this.pane, btn1);
-  //   this.render.appendChild(this.pane, btn2);
-  //   this.render.appendChild(this.pane, btn3);
-  //   this.render.appendChild(target.parentElement, this.pane);
-  //   console.log(this.render);
-  //   // this.addOptionPane(target);
-  //   // target.parentElement.classList.add('option');
-  // }
   private getRootNode(node: NzTreeNode) {
     if (node.parentNode === null) {
       this.nodes = node.origin;
     } else {
       this.getRootNode(node.parentNode);
     }
-
   }
-  private setNode(type: string) {
+  private setNode(type: string, pNode: NzTreeNode) {
+    this.checkNodeKey(type, pNode);
     // 同级node中是否有已经添加的默认节点 index 自增
+    const index = this.existNodeTitleIndex ? this.existNodeTitleIndex + 1 : 1;
     if (type === 'node') {
       this.node = {
-        title: `parent`,
-        key: 'key',
+        title: `parent${index}`,
+        key: `parentKey${index}`,
         isLeaf: false,
         children: []
       };
     } else {
       this.node = {
-        title: 'leaf',
-        key: 'key',
+        title: `leaf${index}`,
+        key: `leafKey${index}`,
         isLeaf: true
       };
     }
   }
-  private getIndexInParentNode(parent: NzTreeNodeOptions, self: NzTreeNodeOptions): any {
-    let exist = false;
-    parent.origin.children.forEach((element, index) => {
-      if (element.key === self.key) {
-        exist = true;
+  private checkNodeKey(type, node) {
+    this.existNodeTitleIndex = null;
+    let arrayLike = [];
+    if (node.origin.isLeaf) {
+      arrayLike = node.parentNode.origin.children;
+    } else {
+      arrayLike = node.origin.children;
+    }
+    let nums = [];
+    // arrayLike = arrayLike.filter(()=>)
+    arrayLike.forEach((element, index) => {
+      const regStr = type === 'node' ? 'parent' : 'leaf';
+      if (element.title.includes(regStr)) {
+        const title = element.title;
+        const startI = title.indexOf(regStr);
+        const endI = type === 'node' ? startI + 6 : startI + 4;
+        if (title.slice(endI) && Number(title.slice(endI))) {
+          nums = [...nums, Number(title.slice(endI))];
+        }
       }
     });
-    this.isReduplicated = Boolean(exist);
-    // return this.isReduplicated;
-  }
-  // private isExistInParentNode(parent: NzTreeNodeOptions, self: NzTreeNodeOptions): any {
-  //   let existParentNode;
-  //   if (!parent.parentNode) {
-  //     return false;
-  //   }
-  //   existParentNode = true;
-  //   return existParentNode;
-  // }
-  private checkNodeKey(parent, node) {
-    this.getIndexInParentNode(parent, node);
+    this.existNodeTitleIndex = nums.length > 0 ? Math.max(...nums) : null;
   }
 }
