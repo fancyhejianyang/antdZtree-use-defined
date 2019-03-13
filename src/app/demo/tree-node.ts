@@ -1,9 +1,8 @@
 import { NzTreeNodeOptions, NzTreeNode, NzMessageService } from 'ng-zorro-antd';
-import { Renderer2, ElementRef } from '@angular/core';
 export class TreeNode {
   nodes: NzTreeNodeOptions[];
   node: NzTreeNodeOptions;
-  regStr: RegExp = /[!@#$%^&*()_+|\-\/<>?:"{}，。、；‘【】\]\[]/gi;
+  regStr: RegExp = /[!@#$%^&*()+|\/<>?:"{}，。、；‘【】\]\[]/gi;
   pane: Element;
   types = ['', 'node', 'leaf'];
   // ref = new ElementRef('span');
@@ -11,16 +10,11 @@ export class TreeNode {
   existNodeTitleIndex: number;
   message: NzMessageService;
   // 添加的节点是否重复
-  isReduplicated: boolean;
   constructor(nodes, message) {
     this.nodes = nodes;
     this.message = message;
   }
   addNode(pNode: NzTreeNode, type, callback: any) {
-    // 若所有操作均在非leaf 节点则：
-    // if (pNode.origin.isLeaf) {
-    //   return;
-    // }
     // 设置添加默认模板
     this.setNode(type, pNode);
     // leaf 节点需要转移到上层node节点
@@ -33,21 +27,18 @@ export class TreeNode {
     callback(this.nodes);
   }
   editNode(element: any, pNode: NzTreeNode) {
-    // 设置可编辑属性
-    // this.removePane = callback;
-    element.setAttribute('contentEditable', 'true');
-    element.focus();
-    // getSelection().getRangeAt(0);
-    const pastText = element.innerText;
-    element.addEventListener('keydown', (e) => {
-      if (e.keyCode === 13) {
-        e.preventDefault();
-        element.blur();
-      }
+    // 右击区域为LI标签时候要将元素定位到具体的span 往下2层
+    // if (element.nodeName === 'LI') {
+    //   element = element.children[2].children[0];
+    // }
+    let pastText;
+    element.addEventListener('focus', (e) => {
+      pastText = element.innerText;
     });
     element.addEventListener('blur', (e) => {
       if (e.target.innerText.trim() === '' || this.regStr.test(e.target.innerText.trim())) {
         this.message.create('warning', '修改值不可包含特殊字符或者为空值！');
+        console.log(e.target.innerText.trim());
         e.target.innerText = pastText;
         return;
       }
@@ -55,8 +46,17 @@ export class TreeNode {
       e.target.removeAttribute('contentEditable');
       // 获取value 并更新data
       pNode.origin.title = e.target.innerText;
-      // callback(this.nodes);
     });
+    element.addEventListener('keydown', (e) => {
+      if (e.keyCode === 13) {
+        e.preventDefault();
+        element.blur();
+      }
+    });
+    // 设置可编辑属性
+    // this.removePane = callback;
+    element.setAttribute('contentEditable', 'true');
+    element.focus();
   }
   private getRootNode(node: NzTreeNode) {
     if (node.parentNode === null) {

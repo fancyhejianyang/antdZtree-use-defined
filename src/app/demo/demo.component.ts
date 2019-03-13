@@ -44,7 +44,7 @@ export class DemoComponent implements OnInit {
   private dropdown: NzDropdownContextComponent;
   treeNodes: TreeNode;
   targetNode: NzTreeNode;
-  targetElement: EventTarget;
+  targetElement: Element;
   types = ['', 'node', 'leaf'];
   constructor(
     private render2: Renderer2,
@@ -57,10 +57,8 @@ export class DemoComponent implements OnInit {
   }
   nzClick(e: NzFormatEmitEvent) {
     // this.treeNodes.removePane();
-    if (this.dropdown) {
-      this.dropdown.close();
-    }
-    e.event.preventDefault();
+    this.closeDropdown();
+    // e.event.preventDefault();
     console.log(e);
   }
   nzCheck(e: NzFormatEmitEvent) {
@@ -74,8 +72,11 @@ export class DemoComponent implements OnInit {
   }
   contentMenu(e: NzFormatEmitEvent, template: TemplateRef<void>) {
     this.targetNode = e.node;
-    this.targetElement = e.event.target;
-    this.dropdown = this.dropdownService.create(e.event, template);
+    this.targetElement = e.event.srcElement;
+    this.closeDropdown();
+    if (this.targetElement.nodeName === 'SPAN') {
+      this.dropdown = this.dropdownService.create(e.event, template);
+    }
   }
   optionHandle(e: any) {
     e.preventDefault();
@@ -88,5 +89,10 @@ export class DemoComponent implements OnInit {
       });
     }
     this.dropdown.close();
+  }
+  closeDropdown() {
+    if (this.dropdown) {
+      this.dropdown.close();
+    }
   }
 }
