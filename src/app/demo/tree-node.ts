@@ -28,9 +28,10 @@ export class TreeNode {
   }
   editNode(element: any, pNode: NzTreeNode) {
     // 右击区域为LI标签时候要将元素定位到具体的span 往下2层
-    // if (element.nodeName === 'LI') {
-    //   element = element.children[2].children[0];
-    // }
+    if (element.nodeName !== 'SPAN') {
+      // element = element.children[2].children[0];
+      return;
+    }
     let pastText;
     element.addEventListener('focus', (e) => {
       pastText = element.innerText;
@@ -38,7 +39,6 @@ export class TreeNode {
     element.addEventListener('blur', (e) => {
       if (e.target.innerText.trim() === '' || this.regStr.test(e.target.innerText.trim())) {
         this.message.create('warning', '修改值不可包含特殊字符或者为空值！');
-        console.log(e.target.innerText.trim());
         e.target.innerText = pastText;
         return;
       }

@@ -56,10 +56,8 @@ export class DemoComponent implements OnInit {
     this.treeNodes = new TreeNode(this.nodes, this.message);
   }
   nzClick(e: NzFormatEmitEvent) {
-    // this.treeNodes.removePane();
+    e.event.preventDefault();
     this.closeDropdown();
-    // e.event.preventDefault();
-    console.log(e);
   }
   nzCheck(e: NzFormatEmitEvent) {
     console.log(e);
@@ -69,6 +67,7 @@ export class DemoComponent implements OnInit {
   }
   dbClick(e: NzFormatEmitEvent) {
     console.log(e);
+    this.treeNodes.editNode(e.event.srcElement, e.node);
   }
   contentMenu(e: NzFormatEmitEvent, template: TemplateRef<void>) {
     this.targetNode = e.node;
