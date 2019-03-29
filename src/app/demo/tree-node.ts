@@ -19,12 +19,24 @@ export class TreeNode {
     this.setNode(type, pNode);
     // leaf 节点需要转移到上层node节点
     if (pNode.origin.isLeaf) {
-      pNode.parentNode.origin.children = [...pNode.parentNode.origin.children, this.node];
+      pNode.parentNode.origin.children = [
+        ...pNode.parentNode.origin.children,
+        this.node
+      ];
     } else {
       pNode.origin.children = [...pNode.origin.children, this.node];
     }
     this.getRootNode(pNode);
     callback(this.nodes);
+  }
+  deleteNode(element: any, pNode: NzTreeNode) {
+    if (!pNode.parentNode) {
+      this.message.create('warning', '根节点无法删除！');
+      return;
+    }
+    pNode.parentNode.children = pNode.parentNode.children.filter(
+      o => o.key !== pNode.key
+    );
   }
   editNode(element: any, pNode: NzTreeNode) {
     // 右击区域为LI标签时候要将元素定位到具体的span 往下2层
@@ -33,11 +45,14 @@ export class TreeNode {
       return;
     }
     let pastText;
-    element.addEventListener('focus', (e) => {
+    element.addEventListener('focus', e => {
       pastText = element.innerText;
     });
-    element.addEventListener('blur', (e) => {
-      if (e.target.innerText.trim() === '' || this.regStr.test(e.target.innerText.trim())) {
+    element.addEventListener('blur', e => {
+      if (
+        e.target.innerText.trim() === '' ||
+        this.regStr.test(e.target.innerText.trim())
+      ) {
         this.message.create('warning', '修改值不可包含特殊字符或者为空值！');
         e.target.innerText = pastText;
         return;
@@ -47,7 +62,7 @@ export class TreeNode {
       // 获取value 并更新data
       pNode.origin.title = e.target.innerText;
     });
-    element.addEventListener('keydown', (e) => {
+    element.addEventListener('keydown', e => {
       if (e.keyCode === 13) {
         e.preventDefault();
         element.blur();

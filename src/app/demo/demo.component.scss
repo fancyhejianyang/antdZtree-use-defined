@@ -1,3 +1,6 @@
+.nav-menu{
+  max-width: 200px;
+}
 .ant-tree-title {
   white-space: nowrap;
 }
@@ -5,6 +8,7 @@
 .option-btn-pane {
   margin-left: 0px;
   button {
+    width: 120px;
     color: #fff;
     background-color: #1890ff;
     border-color: #fff;
@@ -14,9 +18,15 @@
     outline: none;
     margin: 0px;
     -webkit-appearance: none;
+    display: block;
   }
 }
 
 .option-pane {
   border: 1px solid rgba(56, 56, 56, 0.667);
+}
+.node-modal{
+  .ant-input{
+    margin:10px 0px;
+  }
 }

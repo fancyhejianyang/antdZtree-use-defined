@@ -1,10 +1,30 @@
 <h1>树形控件展示</h1>
-<nz-tree #treeCom [nzData]="nodes" nzCheckable (nzClick)="nzClick($event)" (nzCheckBoxChange)="nzCheck($event)"
-  (nzDblClick)="dbClick($event)" (nzContextMenu)="contentMenu($event,template)">
-</nz-tree>
+
+<div class="nav-menu">
+  <nz-tree #treeCom [nzData]="nodes" (nzClick)="nzClick($event)" (nzCheckBoxChange)="nzCheck($event)"
+    (nzDblClick)="dbClick($event)" (nzContextMenu)="contentMenu($event,template)">
+  </nz-tree>
+</div>
+<div class="tree-content">
+
+</div>
+
 <ng-template #template nzPlacement="'topRight'">
   <span class="option-btn-pane">
     <button nz-button data-id="1" (click)="optionHandle($event)">add node</button>
     <button nz-button data-id="2" (click)="optionHandle($event)">add leaf</button>
+    <button nz-button data-id="3" (click)="optionHandle($event)">delete leaf</button>
   </span>
 </ng-template>
+<!-- 添加Node -->
+<nz-modal [(nzVisible)]="nodeShow" nzTitle="The Node Modal" (nzOnCancel)="nodeHandleCancel()" (nzOnOk)="nodeHandleOk()"
+  class="node-modal">
+  <input nz-input placeholder="Title" [(ngModel)]="nodeTitle" /><input nz-input placeholder="NodeId"
+    [(ngModel)]="nodeId" type="number" />
+</nz-modal>
+<!-- 添加leaf -->
+<nz-modal [(nzVisible)]="leafShow" nzTitle="The Leaf Modal" (nzOnCancel)="leafHandleCancel()" (nzOnOk)="leafHandleOk()"
+  class="node-modal">
+  <input nz-input placeholder="Title" [(ngModel)]="leafTitle" /><input nz-input placeholder="LeafId"
+    [(ngModel)]="leafId" type="number" />
+</nz-modal>
