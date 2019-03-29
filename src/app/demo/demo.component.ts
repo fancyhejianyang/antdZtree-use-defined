@@ -12,7 +12,9 @@ import {
   NzTreeComponent,
   NzDropdownService,
   NzDropdownContextComponent,
-  NzMessageService
+  NzMessageService,
+  NzModalRef,
+  NzModalService
 } from 'ng-zorro-antd';
 import { TreeNode } from './tree-node';
 import { cloneDeep } from 'lodash';
@@ -64,6 +66,7 @@ export class DemoComponent implements OnInit {
   constructor(
     private render2: Renderer2,
     private message: NzMessageService,
+    private modalService: NzModalService,
     private dropdownService: NzDropdownService
   ) {}
 
@@ -96,7 +99,14 @@ export class DemoComponent implements OnInit {
     e.preventDefault();
     this.currentId = e.target.dataset.id;
     if (this.currentId === '3') {
-      this.treeNodes.deleteNode(this.targetElement, this.targetNode);
+      this.dropdown.close();
+      this.modalService.confirm({
+        nzTitle: '提示',
+        nzContent: '确认执行删除该选项？',
+        nzOnOk: () => {
+          this.treeNodes.deleteNode(this.targetElement, this.targetNode);
+        }
+      });
     } else if (this.currentId === '1') {
       this.dropdown.close();
       this.nodeShow = true;
