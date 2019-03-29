@@ -80,10 +80,10 @@ export class DemoComponent implements OnInit {
   nzSelect(keys: string[]): void {
     console.log(keys, this.treeCom.getSelectedNodeList());
   }
-  dbClick(e: NzFormatEmitEvent) {
-    console.log(e);
-    this.treeNodes.editNode(e.event.srcElement, e.node);
-  }
+  // dbClick(e: NzFormatEmitEvent) {
+  //   console.log(e);
+  //   this.treeNodes.editNode(e.event.srcElement, e.node);
+  // }
   contentMenu(e: NzFormatEmitEvent, template: TemplateRef<void>) {
     this.targetNode = e.node;
     this.targetElement = e.event.srcElement;
